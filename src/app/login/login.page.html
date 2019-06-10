@@ -1,0 +1,50 @@
+<!-- <ion-header>
+  <ion-toolbar>
+    <ion-title>login</ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-content>
+  <ion-row>
+    <ion-col size-sm="8" offset-sm="2" size-md="8" offset-md="2" size-lg="6" offset-lg="3">
+      <!-- <ion-row>
+        <ion-col size-sm="8" offset-sm="2" size-md="8" offset-md="2" size-lg="8" offset-lg="2">
+          <img src="../../assets/images/Economize_logo_transparent.png">
+        </ion-col>
+      </ion-row> -->
+      <ion-row>
+        <ion-col size-md="8" offset-md="2">
+          <ion-text *ngIf="error" color="tertiary">
+            <p>{{error}}</p>
+          </ion-text>
+          <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm.value)">
+            <ion-item>
+              <ion-label position="floating">Email</ion-label>
+              <ion-input name="email" type="email" ngModel autofocus required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Password</ion-label>
+              <ion-input name="password" type="password" ngModel required></ion-input>
+            </ion-item>
+
+            <ion-row>
+              <ion-col width-50 style="text-align: right">
+                <ion-button type="submit">
+                  <ion-icon name="log-in"></ion-icon>Sign In
+                </ion-button>
+              </ion-col>
+              <!-- </ion-row>
+              <ion-row> -->
+              <!-- <ion-col width-50 style="text-align: left">
+                <ion-button [routerLink]="['/register']">
+                  <ion-icon name="checkmark-circle-outline"></ion-icon> Register
+                </ion-button>
+              </ion-col> -->
+            </ion-row>
+
+          </form>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+  </ion-row>
+</ion-content>

@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>members</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-button (click)="goTo()"> GET Categories</ion-button>
+  <ion-card *ngIf="displayCategories">
+    <ion-list *ngFor="let category of categories">
+      <ion-item>
+        {{category.tags}}
+      </ion-item>
+    </ion-list>
+  </ion-card>
+  <ion-text *ngIf="error" color="danger">
+    <p>{{error}}</p>
+  </ion-text>
+</ion-content>
