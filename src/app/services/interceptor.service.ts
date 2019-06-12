@@ -18,15 +18,19 @@ export class InterceptorService implements HttpInterceptor {
   constructor(private storage: Storage, private alertCtrl: AlertController, private authenticationService: AuthenticationService) { }
   intercept(req: HttpRequest<any>, next: HttpHandler):
     Observable<HttpEvent<any>> {
+    if (req.url.endsWith('/token/refresh')) {
+      return next.handle(req);
+    }
+    
     let promise = this.storage.get('access_token');
 
     return from(promise).pipe(mergeMap(token => {
       const clonedReq = this.addToken(req, token);
       console.log(req);
       return next.handle(clonedReq).pipe(catchError(error => {
-        if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 500)) {
+        if (error instanceof HttpErrorResponse && error.status === 500) {
           // console.log('executed');
-          return this.handle401Error(req, next);
+          return this.handleAccessError(req, next);
         } else {
           return throwError(error.message);
         }
@@ -62,32 +66,26 @@ export class InterceptorService implements HttpInterceptor {
     return throwError(`Something went wrong , error: ${errorResponse.status} ${errorResponse.statusText}.`);
   }
 
-  private handle401Error(request: HttpRequest<any>, next: HttpHandler) {
+  private handleAccessError(request: HttpRequest<any>, next: HttpHandler) {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
-      this.authenticationService.getAccessTokenUsingRefreshToken().then(obs => {
-        return obs.pipe(
-          catchError(this.handleError),
-          switchMap((token: any) => {
-            this.isRefreshing = false;
-            console.log(token);
-            console.log('executed');
-            this.refreshTokenSubject.next(token.access_token);
-            return next.handle(this.addToken(request, token.access_token));
-          }));
-      });
+      return this.authenticationService.getAccessTokenUsingRefreshToken().pipe(
+        switchMap((token: any) => {
+          this.isRefreshing = false;
+          this.refreshTokenSubject.next(token);
+          return next.handle(this.addToken(request, token));
+        }));
 
     } else {
       return this.refreshTokenSubject.pipe(
         filter(token => token != null),
         take(1),
-        switchMap(access_token => {
-          return next.handle(this.addToken(request, access_token));
+        switchMap(jwt => {
+          return next.handle(this.addToken(request, jwt));
         }));
     }
   }
-
 
 }

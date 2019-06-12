@@ -21,12 +21,12 @@ export class AuthenticationService {
       this.checkToken();
     });
   }
-  url = 'http://localhost:5000'; // 'https://shopping-rest-api.herokuapp.com';
+  url = 'http://localhost:5000';
   ACCESS_TOKEN = 'access_token';
   REFRESH_TOKEN = 'refresh_token';
   user = null;
   token;
-  // refreshToken;
+
   authenticationState = new BehaviorSubject(false);
 
 
@@ -69,28 +69,20 @@ export class AuthenticationService {
   // When you receive an unauthorised, you could automatically start a new HTTP call 
   // to get the token, store it, and then retry the initial call!
 
-  async getAccessTokenUsingRefreshToken() {
-    const refreshToken = await this.storage.get('refresh_token');
-    console.log(refreshToken);
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${refreshToken}`
-      })
-    };
-    return this.http.post<any>(`${this.url}/token/refresh`, 'body', httpOptions).pipe(switchMap(tokens => {
-      // console.log(tokens['access_token']);
-      let category = tokens.category;
-      console.log(category);
-      // this.storage.set(this.ACCESS_TOKEN, tokens[this.ACCESS_TOKEN]);
-      // console.log(this.storage.get('access_token'));
-      return of(tokens); // if not working try this "return of(tokens);"
-
-    }),
-      catchError(catchError(() => {
-        return of({});
-      })));
-
+  getAccessTokenUsingRefreshToken(): Observable<string> {
+    return from(this.storage.get('refresh_token')).pipe(
+      switchMap(refreshToken => {
+        const httpOptions = {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${refreshToken}`
+          })
+        };
+        return this.http.post<any>(`${this.url}/token/refresh`, {}, httpOptions);
+      }),
+      map(response => response.access_token),
+      tap(accessToken => this.storage.set(this.ACCESS_TOKEN, accessToken))
+    );
   }
 
 

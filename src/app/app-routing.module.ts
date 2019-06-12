@@ -10,7 +10,6 @@ const routes: Routes = [
     loadChildren: '../app/members/members.module#MembersPageModule' ,
     canActivate : [AuthGuardService]
   },
-  { path: 'categories', loadChildren: './members/categories/categories.module#CategoriesPageModule' }
   // {
   //   path: 'menu',
   //   loadChildren: './members/menu/menu.module#MenuPageModule',
